@@ -11,13 +11,13 @@ import lombok.ToString;
  */
 @EqualsAndHashCode
 @ToString
-public class AlunoFromPdf {
+public class StudentFromPdf {
 	@Getter @EqualsAndHashCode.Exclude private String nome;
 	@Getter private String matricula;
 	@Getter @EqualsAndHashCode.Exclude private DisciplineMap disciplines;
 	
 	@Builder
-	public AlunoFromPdf (String matricula, String nome) {
+	public StudentFromPdf (String matricula, String nome) {
 		this.matricula = matricula;
 		this.nome = nome;
 		this.disciplines = new DisciplineMap();
