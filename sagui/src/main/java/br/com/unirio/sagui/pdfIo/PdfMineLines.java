@@ -4,79 +4,100 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class PdfMineLines {    
-    @Setter @Getter private PdfPatterns pdfPattern;
-    StudentMap students;
+	/**
+     * Groups:
+     * #1 - Code
+     * #2 - Name
+     * #3 - CR
+     * #4 - CH
+     * #5 - Grade
+     * #6 - Attendance
+     * #7 - Status
+     * #8 - Status description
+     */
+	private static Pattern disciplineRegex = Pattern.compile("([A-Z]{3}[0-9]{4})\\s(.*?)\\s([0-9])\\s([0-9]{2})\\s([0-9]{1,2}\\,[0-9]{2})?\\s?-?([0-9]{1,3}\\,[0-9]{2})\\s([A-Z]{3})\\s?-\\s?(.*)");
+	 /**
+     * Groups:
+     * #1 - Code
+     * #2 - Name
+     * #3 - CR
+     * #4 - CH
+     * #5 - Status 
+     */
+	private static Pattern trtGeral = Pattern.compile("(TRT[0-9]{4})\\s(.*?)\\s([0-9])\\s([0-9])\\s\\s\\s([A-Z]{3})");
+	private static Pattern studentCodeRegex = Pattern.compile("Matrícula:\\s([0-9]{11})");
+    private static Pattern studentNameRegex = Pattern.compile("Nome Aluno:\\s([a-zA-Z\\s]*)");
+    //Curso: 210 - Sistemas de Informação - Bacharelado - Turno Integral (V/N) - código e-MEC 20065 Versão: 2008/1
+    private static Pattern cabecalhoCurso = Pattern.compile("Curso:\\s([0-9]{1,3})\\s-\\s(.*)\\s-\\s(.*)\\s-\\s(.*)\\s-\\s(.*)");
+    //Créditos Carga Horária
+    private static Pattern endOfPdf = Pattern.compile("Créditos Carga Horária");
+	
+    private StudentMap students;
     private String matricula;
     private String name;
     
     public PdfMineLines() {
 		students = new StudentMap();
 	}
-    
-    public void mineLines(List<String> lines) {
+    public StudentMap mineLines(List<String> lines) {
     	//TODO
     	for( int i = 0; i < lines.size(); i++){
-    		Matcher matcher = validatePattern(lines.get(i));
-    		lineTypeMethodInvocation(matcher, lines.get(i + 1));
+    		if(lines.size() > i+1)//prevents arrayoutofbounds when in the last
+    			ProcessStudentCodeRegex(lines.get(i), lines.get(i+1));//Code and name are subsequent, then findin code, nest is name
+    		if( matricula != null && name != null && !students.addAluno( StudentFromPdf.builder().matricula(matricula).nome(name).build() ) ) {
+    			processDisciplineRegex(lines.get(i));
+    			processTrtRegex(lines.get(i));
+    		}
+
+    		
     	}
+    	return students;
     }
     
-    /**
-     * Returns the matcher with the valdated patter over the passed pdf line. 
-     * @param line A line from the historic pdf.
-     * @return
-     */
-    public Matcher validatePattern(String line) {
-    	Matcher matcher = null;
-    	for ( PdfPatterns pdfPattern: PdfPatterns.values() ) {
-			//System.out.println(pdfPattern.getPattern());
-    		matcher = Pattern.compile( pdfPattern.getPattern() ).matcher(line);
-    		if( matcher.find()) {
-    			setPdfPattern(pdfPattern);
-    		}
+	private void processDisciplineRegex(String line) {
+		// TODO Auto-generated method stub
+		
+		Matcher matcher = disciplineRegex.matcher(line);
+		if(matcher.find()) {
+		students.getDisciplines( matricula )
+			.addDiscipline( DisciplineFromPdf.builder()
+			.code(  matcher.group(1) )
+			.cr( Double.parseDouble( matcher.group(3) ) )
+			.grade(  (matcher.group(5) == null)? 0 : Double.parseDouble( matcher.group(5).replace(",", ".") ) )
+			.statusCode( matcher.group(7) )
+			.statusDescription( matcher.group(8) )
+			.build() );
 		}
-		return matcher;
-    }
-    /**
-     * Invokes the desired method based on the line beeing processed at the time.
-     * @param pdfPattern the pattern used create the matcher to a line.
-     */
-    public void lineTypeMethodInvocation(Matcher matcher, String nextLine) {
-    	switch(this.pdfPattern.getValue()){
-    		case 1: processDisciplineRegex(matcher);
-    		case 2: processTrtRegex(matcher);
-    		case 3: ProcessStudentCodeRegex(matcher, nextLine);
-    		case 4: ProcessStudentNameRegex(matcher);
-    		case 5: ProcessInstitutionHeaderRegex(matcher);
-    	}
-    }
-	private void processDisciplineRegex(Matcher matcher) {
-		// TODO Auto-generated method stub
-		
 	}
-	private void processTrtRegex(Matcher matcher) {
-		// TODO Auto-generated method stub
-		
+	private void processTrtRegex(String line) {
+		Matcher matcher = trtGeral.matcher(line);
+		if(matcher.find()) {	
+		students.getDisciplines( matricula )
+			.addDiscipline( DisciplineFromPdf.builder()
+			.code(  matcher.group(1) )
+			.cr( Double.parseDouble( matcher.group(3).replace(",", ".") ) )
+			.statusCode( matcher.group(5) )
+			.build() );
+		}
 	}
-	private void ProcessStudentCodeRegex(Matcher matcher, String nextLine) {
+	private void ProcessStudentCodeRegex(String line ,String nextLine) {
 		// TODO Auto-generated method stub
-		this.matricula = matcher.group(1);
-		matcher =  Pattern.compile( PdfPatterns.studentNameRegex.getPattern() ).matcher(nextLine);
+		Matcher matcher = studentCodeRegex.matcher(line);
+		if(matcher.find()) {
+			this.matricula = matcher.group(1);
+			ProcessStudentNameRegex(nextLine);
+		}
+	}	
+	private void ProcessStudentNameRegex(String nextLine) {
+		// TODO Auto-generated method stub
+		Matcher matcher = studentNameRegex.matcher(nextLine);
 		if( matcher.find() ) {
 			this.name = matcher.group(1);
 		}
 	}
-	private void ProcessStudentNameRegex(Matcher matcher) {
+	private void ProcessInstitutionHeaderRegex(String line) {
 		// TODO Auto-generated method stub
-		
-	}
-	private void ProcessInstitutionHeaderRegex(Matcher matcher) {
-		// TODO Auto-generated method stub
-		
 	}
     
 }
