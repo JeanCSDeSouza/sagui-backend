@@ -14,6 +14,7 @@ public enum DisciplineStatus {
 	APROVADO("APV", "Aprovado"),
 	MATRICULA("ASC", "Matriculado"),
 	REPROVADO("RPV", "Reprovado"),
+	REPROVADO_POR_FALTA("REF", "Reprovado"),
 	REPROVADO_SEM_NOTA("ASC", "Reprovado"),
 	TRANCADO("TRA", "Trancamento Geral"),
 	STATUS_DESCRIPTION_DIFF_ASC_PRV("Reprovado sem nota", "RPV");

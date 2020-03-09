@@ -35,11 +35,10 @@ public class DisciplineFromPdf {
      * @param statusCode
      */ 
     public void addAttendance(Double grade, String statusCode, String statusDescription){
-    	// TODO metodo ainda precisa tratar casos dos status da disciplina
     	this.grade = grade;this.statusCode = statusCode; this.statusDescription = statusDescription;
     	if( statusCode.equals(DisciplineStatus.APROVADO.getStatusName()) || statusCode.equals(DisciplineStatus.DISPENSA_SEM_NOTA.getStatusName()) || statusCode.equals(DisciplineStatus.TRANCADO.getStatusName()) ) {//subistituir pelo valor do enum
     		oneMoreAttendence(); 
-    	}else if(statusCode.equals(DisciplineStatus.REPROVADO.getStatusName())) {//substituir pelo valor do enum
+    	}else if( statusCode.equals(DisciplineStatus.REPROVADO.getStatusName() ) || statusCode.equals(DisciplineStatus.REPROVADO_POR_FALTA.getStatusName() )) {
     		oneMoreAttendence(); oneMoreFailure();
     	}else if( statusCode.equals( DisciplineStatus.REPROVADO_SEM_NOTA.getStatusName() ) && statusDescription.equals(DisciplineStatus.STATUS_DESCRIPTION_DIFF_ASC_PRV.getStatusName()) ) {
     		this.statusCode = DisciplineStatus.STATUS_DESCRIPTION_DIFF_ASC_PRV.getStatus();

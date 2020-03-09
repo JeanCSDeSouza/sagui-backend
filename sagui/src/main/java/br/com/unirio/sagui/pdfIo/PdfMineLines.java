@@ -41,7 +41,6 @@ public class PdfMineLines {
 		students = new StudentMap();
 	}
     public StudentMap mineLines(List<String> lines) {
-    	//TODO
     	for( int i = 0; i < lines.size(); i++){
     		if(lines.size() > i+1)//prevents arrayoutofbounds when in the last
     			ProcessStudentCodeRegex(lines.get(i), lines.get(i+1));//Code and name are subsequent, then findin code, nest is name
@@ -56,8 +55,6 @@ public class PdfMineLines {
     }
     
 	private void processDisciplineRegex(String line) {
-		// TODO Auto-generated method stub
-		
 		Matcher matcher = disciplineRegex.matcher(line);
 		if(matcher.find()) {
 		students.getDisciplines( matricula )
@@ -82,7 +79,6 @@ public class PdfMineLines {
 		}
 	}
 	private void ProcessStudentCodeRegex(String line ,String nextLine) {
-		// TODO Auto-generated method stub
 		Matcher matcher = studentCodeRegex.matcher(line);
 		if(matcher.find()) {
 			this.matricula = matcher.group(1);
@@ -90,7 +86,6 @@ public class PdfMineLines {
 		}
 	}	
 	private void ProcessStudentNameRegex(String nextLine) {
-		// TODO Auto-generated method stub
 		Matcher matcher = studentNameRegex.matcher(nextLine);
 		if( matcher.find() ) {
 			this.name = matcher.group(1);
