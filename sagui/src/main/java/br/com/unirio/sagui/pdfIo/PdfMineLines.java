@@ -32,10 +32,14 @@ public class PdfMineLines {
     private static Pattern cabecalhoCurso = Pattern.compile("Curso:\\s([0-9]{1,3})\\s-\\s(.*)\\s-\\s(.*)\\s-\\s(.*)\\s-\\s(.*)");
     //Créditos Carga Horária
     private static Pattern endOfPdf = Pattern.compile("Créditos Carga Horária");
-	
+    private static Pattern semesterRegex = Pattern.compile("Per.odo:\\s([1-2].*\\s[0-9]{4})");
+    private static Pattern gpsRegex = Pattern.compile("Total Créditos/Carga Horária cursados no Período:?\\s?:?\\s([0-9]{1,3})\\s([0-9]{1,4})\\sCoeficiente de Rendimento:\\s([0-9],[0-9]{1,6})");
+    
     private StudentMap students;
     private String matricula;
     private String name;
+    private String descricao;
+    private Double nota;
     
     public PdfMineLines() {
 		students = new StudentMap();
@@ -43,10 +47,11 @@ public class PdfMineLines {
     public StudentMap mineLines(List<String> lines) {
     	for( int i = 0; i < lines.size(); i++){
     		if(lines.size() > i+1)//prevents arrayoutofbounds when in the last
-    			ProcessStudentCodeRegex(lines.get(i), lines.get(i+1));//Code and name are subsequent, then findin code, nest is name
+    			ProcessStudentCodeRegex(lines.get(i), lines.get(i+1));//Code and name are subsequent, then finding code, next is name
     		if( matricula != null && name != null && !students.addAluno( StudentFromPdf.builder().matricula(matricula).nome(name).build() ) ) {
     			processDisciplineRegex(lines.get(i));
     			processTrtRegex(lines.get(i));
+    			processSemesterGpa(lines.get(i));
     		}
 
     		
@@ -91,8 +96,24 @@ public class PdfMineLines {
 			this.name = matcher.group(1);
 		}
 	}
+	@SuppressWarnings("unused")
 	private void ProcessInstitutionHeaderRegex(String line) {
 		// TODO Auto-generated method stub
 	}
-    
+	private void processSemesterGpa(String line) {
+		// TODO Auto-generated method stub	
+		Matcher matcher = semesterRegex.matcher(line);
+		if(matcher.find())
+			this.descricao = matcher.group(1);
+		matcher = gpsRegex.matcher(line);
+		if(matcher.find()) {
+			if(this.descricao != null) {
+				 students.getStudent(this.matricula).addCrPeriodizado( 
+						 CrPeriodizadoFromPdf.builder().descricao(this.descricao).cargaDeCreditos( Integer.parseInt( matcher.group(1) ) )
+						 .cargaHoraria( Integer.parseInt( matcher.group(2) ) )
+						 .nota( Double.parseDouble( matcher.group(3).replace(",", ".") ) )
+						 .build());
+			}
+		}
+	}
 }

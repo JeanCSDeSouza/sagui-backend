@@ -10,13 +10,15 @@ import lombok.Getter;
  */
 public enum DisciplineStatus {
 	DISPENSA_SEM_NOTA("DIS", "Aprovado"),
-	DISPENSA_COM_NOTA("DIS", "Aprovado"),
+	DISPENSA_COM_NOTA("ADI", "Aprovado"),
 	APROVADO("APV", "Aprovado"),
 	MATRICULA("ASC", "Matriculado"),
 	REPROVADO("RPV", "Reprovado"),
 	REPROVADO_POR_FALTA("REF", "Reprovado"),
+	REPROVADO_POR_NOTA("REP", "Reprovado"),
 	REPROVADO_SEM_NOTA("ASC", "Reprovado"),
 	TRANCADO("TRA", "Trancamento Geral"),
+	STATUS_DESCRIPTION_DIFF_TRA_TR("Trancamento de","TR"),
 	STATUS_DESCRIPTION_DIFF_ASC_PRV("Reprovado sem nota", "RPV");
 	
 	@Getter private String statusName;

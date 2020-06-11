@@ -7,6 +7,8 @@
         </encoder>
     </appender>
 
+	<logger name="br.com.unirio.sagui.pdfjobs" level="INFO"/>
+
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>

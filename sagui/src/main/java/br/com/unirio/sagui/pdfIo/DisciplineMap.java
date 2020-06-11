@@ -1,12 +1,17 @@
 package br.com.unirio.sagui.pdfIo;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import lombok.Getter;
 import lombok.ToString;
 @ToString
-public class DisciplineMap {
+public class DisciplineMap implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6043365422525888469L;
 	@Getter private Map<String, DisciplineFromPdf> disciplines;
 	public DisciplineMap() {
 		disciplines = new HashMap<String,DisciplineFromPdf>();

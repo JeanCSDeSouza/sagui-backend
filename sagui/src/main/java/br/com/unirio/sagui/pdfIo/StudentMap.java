@@ -6,8 +6,10 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.ToString;
 @ToString
-public class StudentMap {
+public class StudentMap{
+	
 	@Getter private Map<String, StudentFromPdf> students;
+	
 	public StudentMap() {
 		students = new HashMap<String,StudentFromPdf>();
 	}
